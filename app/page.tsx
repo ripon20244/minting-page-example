@@ -2,6 +2,8 @@
 
 import toast, { Toaster } from "react-hot-toast";
 
+import { IS_TESTNET } from "@/consts";
+import { getInscriptionLink } from "./utils/getInscriptionLink";
 import { prepareInscription } from "./utils/prepareInscription";
 import { useOrdinalSafe } from "./hooks/useOrdinalSafe";
 
@@ -65,13 +67,21 @@ export default function Home() {
           <a
             target="_blank"
             className="text-white underline hover:no-underline"
-            href={`https://www.blockchain.com/explorer/transactions/btc/${wallet.inscriptionManifest.data.reveal}`}
+            href={`https://www.blockchain.com/explorer/transactions/btc/${getInscriptionLink(
+              wallet.inscriptionManifest.data.reveal
+            )}`}
           >
             {wallet.inscriptionManifest.data.reveal}
           </a>
         </div>
       ) : null}
       <Toaster />
+
+      {IS_TESTNET ? (
+        <div className="absolute font-bold text-yellow-500 right-10 bottom-10">
+          TESTNET VERSION
+        </div>
+      ) : null}
     </main>
   );
 }
