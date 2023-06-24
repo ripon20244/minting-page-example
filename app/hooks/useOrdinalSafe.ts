@@ -11,15 +11,33 @@ export const useOrdinalSafe = () => {
     React.useState<InscriptionResult>(state.initial);
 
   React.useEffect(() => {
-    if (typeof window?.ordinalSafe === "undefined") {
-      return setInjection({
-        ...state.error,
-        error: "OrdinalSafe is not found",
-      });
-    }
+    let timeoutId: NodeJS.Timeout;
+    let tryCount = 0;
 
-    OS.current = window.ordinalSafe;
-    setInjection(state.success);
+    const checkOrdinalSafe = () => {
+      if (typeof window?.ordinalSafe === "undefined") {
+        tryCount++;
+        if (tryCount > 10) {
+          clearTimeout(timeoutId);
+          return setInjection({
+            ...state.error,
+            error: "OrdinalSafe is not found",
+          });
+        }
+
+        timeoutId = setTimeout(checkOrdinalSafe, 200);
+      } else {
+        clearTimeout(timeoutId);
+        OS.current = window.ordinalSafe;
+        setInjection(state.success);
+      }
+    };
+
+    checkOrdinalSafe();
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const initialize = React.useCallback(() => {
